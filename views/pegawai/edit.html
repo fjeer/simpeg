@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Edit Pegawai - SIMPEG</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+            rel="stylesheet" />
+        <style>
+        .sidebar { min-height: 100vh; background: white; border-right: 1px solid #dee2e6; }
+        .nav-link { color: #333; }
+        .nav-link:hover { background: #f8f9fa; color: #0d6efd; }
+    </style>
+    </head>
+    <body class="bg-light">
+        <nav class="navbar navbar-dark bg-primary shadow-sm sticky-top">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold" href="#">SIMPEG</a>
+                <div class="d-flex align-items-center text-white">
+                    <span id="userNameDisplay"
+                        class="me-3 small">Memuat...</span>
+                    <button class="btn btn-light btn-sm"
+                        onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container-fluid">
+            <div class="row">
+                <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse p-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item"><a
+                                class="nav-link"
+                                href="../dashboard/index.html">🗺️
+                                Dashboard</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="../profile/me.html">🏠
+                                Profil Saya</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link"
+                                href="../auth/change_password.html">🔑 Ubah
+                                Password</a>
+                        </li>
+
+                        <div id="menuSupervisor" class="d-none">
+                            <hr />
+                            <li class="nav-item">
+                                <a class="nav-link fw-bold text-primary"
+                                    href="../pegawai/list.html">👥 Daftar
+                                    Pegawai</a>
+                            </li>
+                        </div>
+
+                        <div id="menuAdmin" class="d-none">
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                    href="../jabatan/list.html">💼 Daftar
+                                    Jabatan</a>
+                            </li>
+                        </div>
+
+                        <div id="menuSuper" class="d-none">
+                            <hr />
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                    href="#">🛠️ Kelola
+                                    Pegawai</a>
+                            </li>
+                        </div>
+
+                        <div id="menuDev" class="d-none">
+                            <hr />
+                            <li class="nav-item">
+                                <a class="nav-link" href="../role/list.html">🛡️
+                                    Manajemen Role</a>
+                            </li>
+                        </div>
+                    </ul>
+                </nav>
+
+                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mt-4">
+                    <div class="card shadow border-0">
+                        <div
+                            class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0">✏️ Edit Pegawai</h4>
+                            <a class="btn btn-dark btn-sm"
+                                href="list.html">Batal</a>
+                        </div>
+                        <div class="card-body p-4">
+                            <form id="formEdit">
+                                <h6
+                                    class="text-muted border-bottom pb-2 mb-3">Data
+                                    Pribadi</h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label
+                                            class="form-label fw-bold small">NIK</label>
+                                        <input type="text" id="nik"
+                                            class="form-control" maxlength="16">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label
+                                            class="form-label fw-bold small">Nomor
+                                            KK</label>
+                                        <input type="text" id="nomor_kk"
+                                            class="form-control">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label
+                                            class="form-label fw-bold small">NPWP</label>
+                                        <input type="text" id="npwp"
+                                            class="form-control">
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label
+                                            class="form-label fw-bold small">Nama
+                                            Lengkap</label>
+                                        <input type="text" id="nama"
+                                            class="form-control" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label
+                                            class="form-label fw-bold small">Tempat
+                                            Lahir</label>
+                                        <input type="text" id="tempat_lahir"
+                                            class="form-control">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label
+                                            class="form-label fw-bold small">Tanggal
+                                            Lahir</label>
+                                        <input type="date" id="tanggal_lahir"
+                                            class="form-control">
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label
+                                            class="form-label fw-bold">Jabatan</label>
+                                        <select id="id_jabatan"
+                                            class="form-select" required>
+                                            <option value>Pilih Jabatan</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label
+                                            class="form-label fw-bold small">Jenis
+                                            Kelamin</label>
+                                        <select id="jk" class="form-select">
+                                            <option value="L">Laki-laki</option>
+                                            <option value="P">Perempuan</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Gol.
+                                            Darah</label>
+                                        <select class="form-select"
+                                            id="golongan_darah">
+                                            <option value>Pilih</option>
+                                            <option value="A">A</option><option
+                                                value="B">B</option><option
+                                                value="AB">AB</option><option
+                                                value="O">O</option>
+                                        </select>
+                                    </div>
+
+                                    <h6
+                                        class="text-muted border-bottom pb-2 mb-3 mt-4">Alamat
+                                        & Kontak</h6>
+
+                                    <div class="col-md-6">
+                                        <label
+                                            class="form-label fw-bold small">Email</label>
+                                        <input type="email" id="email"
+                                            class="form-control">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label
+                                            class="form-label fw-bold small">Nomor
+                                            HP</label>
+                                        <input type="text" id="nomor_hp"
+                                            class="form-control">
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label
+                                            class="form-label fw-bold small">Provinsi</label>
+                                        <select id="sel_provinsi"
+                                            class="form-select"><option
+                                                value>Pilih</option></select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label
+                                            class="form-label fw-bold small">Kabupaten</label>
+                                        <select id="sel_kabupaten"
+                                            class="form-select" disabled><option
+                                                value>Pilih</option></select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label
+                                            class="form-label fw-bold small">Kecamatan</label>
+                                        <select id="sel_kecamatan"
+                                            class="form-select" disabled><option
+                                                value>Pilih</option></select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label
+                                            class="form-label fw-bold small">Desa</label>
+                                        <select id="sel_desa"
+                                            class="form-select" disabled><option
+                                                value>Pilih</option></select>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label
+                                            class="form-label fw-bold small">RT</label>
+                                        <input type="text" id="rt"
+                                            class="form-control">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label
+                                            class="form-label fw-bold small">RW</label>
+                                        <input type="text" id="rw"
+                                            class="form-control">
+                                    </div>
+                                    <div class="col-md-8">
+                                        <label
+                                            class="form-label fw-bold small">Alamat
+                                            Lengkap</label>
+                                        <textarea id="alamat"
+                                            class="form-control"
+                                            rows="1"></textarea>
+                                    </div>
+
+                                    <h6
+                                        class="text-muted border-bottom pb-2 mb-1 mt-4">Akun
+                                        Pengguna</h6>
+
+                                    <div class="col-md-6">
+                                        <label
+                                            class="form-label fw-bold small">Username</label>
+                                        <input type="text" id="username"
+                                            class="form-control">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Akses
+                                            Role</label>
+                                        <select id="id_role" class="form-select"
+                                            required>
+                                            <option value>Pilih Role</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-12 text-end mt-4">
+                                        <button type="submit"
+                                            class="btn btn-success px-5">Simpan
+                                            Perubahan</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+
+        <script>
+        const token = localStorage.getItem("jwt_token");
+        if (!token) window.location.href = "../auth/login.html";
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const idPegawai = urlParams.get('id');
+
+        async function apiFetch(url, options = {}) {
+            const defaultHeaders = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            };
+            const response = await fetch(url, {
+                ...options,
+                headers: { ...defaultHeaders, ...options.headers }
+            });
+            if (response.status === 401) logout();
+            return await response.json();
+        }
+
+        // Elements
+        const el = {
+            prov: document.getElementById('sel_provinsi'),
+            kab: document.getElementById('sel_kabupaten'),
+            kec: document.getElementById('sel_kecamatan'),
+            des: document.getElementById('sel_desa')
+        };
+
+        // Reuse your existing apiFetch
+        document.addEventListener("DOMContentLoaded", async () => {
+            if (!idPegawai) {
+                alert("ID Pegawai tidak ditemukan");
+                return;
+            }
+
+            await loadProfile();
+            await loadRole();
+            await loadJabatan();
+            await loadProvinsi();
+            await loadDataPegawai();
+        });
+
+        async function loadJabatan() {
+            const res = await apiFetch('../../api/jabatan/list.php');
+            if(res.status) {
+                document.getElementById('id_jabatan').innerHTML += res.data.map(j => 
+                    `<option value="${j.id_jabatan}">${j.jabatan}</option>`
+                ).join('');
+            }
+        }
+
+        async function loadRole() {
+            const res = await apiFetch('../../api/role/list.php');
+            if(res.status) {
+                document.getElementById('id_role').innerHTML += res.data.map(r => 
+                    `<option value="${r.id_role}">${r.nama_role}</option>`
+                ).join('');
+            }
+        }
+
+        async function loadDataPegawai() {
+            const res = await apiFetch(`../../api/pegawai/detail.php?id=${idPegawai}`);
+            if (res.status && res.data) {
+                const p = res.data;
+                document.getElementById("nama").value = p.nama || "";
+                document.getElementById("nik").value = p.nik || "";
+                document.getElementById("nomor_kk").value = p.nomor_kk || "";
+                document.getElementById("npwp").value = p.npwp || "";
+                document.getElementById("jk").value = p.jk || "L";
+                document.getElementById("tempat_lahir").value = p.tempat_lahir || "";
+                document.getElementById("tanggal_lahir").value = p.tanggal_lahir || "";
+                document.getElementById("email").value = p.email || "";
+                document.getElementById("nomor_hp").value = p.nomor_hp || "";
+                document.getElementById("rt").value = p.rt || "";
+                document.getElementById("rw").value = p.rw || "";
+                document.getElementById("alamat").value = p.alamat || "";
+                document.getElementById("username").value = p.username || "";
+
+                document.getElementById("id_jabatan").value = p.id_jabatan;
+                document.getElementById("id_role").value = p.id_role;
+                document.getElementById("golongan_darah").value = p.golongan_darah;
+
+                // preload wilayah
+                document.getElementById("sel_provinsi").value = p.id_provinsi;
+                await loadKabupaten(p.id_provinsi, p.id_kabupaten);
+                await loadKecamatan(p.id_kabupaten, p.id_kecamatan);
+                await loadDesa(p.id_kecamatan, p.id_desa);
+            }
+        }
+
+        async function loadProvinsi() {
+            const res = await apiFetch("../../api/wilayah/provinsi.php");
+            if (!res.status) return;
+
+            const prov = document.getElementById("sel_provinsi");
+            prov.innerHTML = '<option value="">Pilih</option>';
+
+            res.data.forEach(p => {
+                prov.innerHTML += `<option value="${p.id_provinsi}">${p.provinsi}</option>`;
+            });
+        }
+
+        async function loadKabupaten(idProv, selected = "") {
+            const res = await apiFetch(`../../api/wilayah/kabupaten.php?id_provinsi=${idProv}`);
+            const kab = document.getElementById("sel_kabupaten");
+
+            kab.disabled = false;
+            kab.innerHTML = '<option value="">Pilih</option>';
+
+            res.data.forEach(d => {
+                kab.innerHTML += `<option value="${d.id_kabupaten}">${d.kabupaten}</option>`;
+            });
+
+            kab.value = selected;
+        }
+
+        async function loadKecamatan(idKab, selected = "") {
+            const res = await apiFetch(`../../api/wilayah/kecamatan.php?id_kabupaten=${idKab}`);
+            const kec = document.getElementById("sel_kecamatan");
+
+            kec.disabled = false;
+            kec.innerHTML = '<option value="">Pilih</option>';
+
+            res.data.forEach(d => {
+                kec.innerHTML += `<option value="${d.id_kecamatan}">${d.kecamatan}</option>`;
+            });
+
+            kec.value = selected;
+        }
+
+        async function loadDesa(idKec, selected = "") {
+            const res = await apiFetch(`../../api/wilayah/desa.php?id_kecamatan=${idKec}`);
+            const des = document.getElementById("sel_desa");
+
+            des.disabled = false;
+            des.innerHTML = '<option value="">Pilih</option>';
+
+            res.data.forEach(d => {
+                des.innerHTML += `<option value="${d.id_desa}">${d.desa}</option>`;
+            });
+
+            des.value = selected;
+        }
+
+        sel_provinsi.onchange = () => {
+            loadKabupaten(sel_provinsi.value);
+        };
+
+        sel_kabupaten.onchange = () => {
+            loadKecamatan(sel_kabupaten.value);
+        };
+
+        sel_kecamatan.onchange = () => {
+            loadDesa(sel_kecamatan.value);
+        };
+
+        document.getElementById('formEdit').onsubmit = async (e) => {
+            e.preventDefault();
+            const body = {
+                id_person: idPegawai,
+                nik: nik.value,
+                nomor_kk: nomor_kk.value,
+                npwp: npwp.value,
+                nama: nama.value,
+                jk: jk.value,
+                tempat_lahir: tempat_lahir.value,
+                tanggal_lahir: tanggal_lahir.value,
+                email: email.value,
+                nomor_hp: nomor_hp.value,
+                id_jabatan: id_jabatan.value,
+                id_role: id_role.value,
+                golongan_darah: golongan_darah.value,
+                id_desa: sel_desa.value,
+                rt: rt.value,
+                rw: rw.value,
+                alamat: alamat.value,
+                username: username.value
+            };
+
+            const res = await apiFetch(`../../api/pegawai/update.php`, {
+                method: 'POST',
+                body: JSON.stringify(body)
+            });
+
+            if(res.status) {
+                alert("Berhasil memperbarui data!");
+                window.location.href = `detail.html?id=${idPegawai}`;
+            } else {
+                alert("Gagal: " + res.message);
+            }
+        };
+
+        // Standard loadProfile from your code
+        async function loadProfile() {
+            const result = await apiFetch("../../me.php");
+            if (result && result.status) {
+                const user = result.data;
+                const role = user.role.toLowerCase();
+                document.getElementById("userNameDisplay").innerText = user.nama || user.username;
+                if (["supervisor", "admin", "superadmin", "developer"].includes(role))
+                    document.getElementById("menuSupervisor").classList.remove("d-none");
+                if (["admin", "superadmin", "developer"].includes(role))
+                    document.getElementById("menuAdmin").classList.remove("d-none");
+                if (["developer"].includes(role)) 
+                    document.getElementById("menuDev").classList.remove("d-none");
+            }
+        }
+
+        async function logout() {
+            try {
+                const token = localStorage.getItem("jwt_token");
+                
+                // Panggil API logout di backend
+                await fetch("../../auth/process_logout.php", {
+                    method: "POST",
+                    headers: { 
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+            } catch (error) {
+                console.error("Gagal menghubungi server saat logout:", error);
+            } finally {
+                localStorage.clear();
+                window.location.href = "../../index.php";
+            }
+        }
+    </script>
+    </body>
+</html>

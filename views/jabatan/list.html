@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Dashboard - SIMPEG</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+            rel="stylesheet" />
+        <style>
+			.sidebar {
+				min-height: 100vh;
+				background: white;
+				border-right: 1px solid #dee2e6;
+			}
+			.nav-link {
+				color: #333;
+			}
+			.nav-link:hover {
+				background: #f8f9fa;
+				color: #0d6efd;
+			}
+		</style>
+    </head>
+    <body class="bg-light">
+        <nav class="navbar navbar-dark bg-primary shadow-sm sticky-top">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold" href="#">SIMPEG</a>
+                <div class="d-flex align-items-center text-white">
+                    <span id="userNameDisplay"
+                        class="me-3 small">Memuat...</span>
+                    <button class="btn btn-light btn-sm" onclick="logout()">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container-fluid">
+            <div class="row">
+                <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse p-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item"><a
+                                class="nav-link"
+                                href="../dashboard/index.html">🗺️
+                                Dashboard</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="../profile/me.html">🏠
+                                Profil Saya</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link"
+                                href="../auth/change_password.html">🔑 Ubah
+                                Password</a>
+                        </li>
+
+                        <div id="menuSupervisor" class="d-none">
+                            <hr />
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                    href="../pegawai/list.html">👥 Daftar
+                                    Pegawai</a>
+                            </li>
+                        </div>
+
+                        <div id="menuAdmin" class="d-none">
+                            <li class="nav-item">
+                                <a class="nav-link fw-bold text-primary"
+                                    href="../jabatan/list.html">💼 Daftar
+                                    Jabatan</a>
+                            </li>
+                        </div>
+
+                        <div id="menuSuper" class="d-none">
+                            <hr />
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                    href="#">🛠️ Kelola
+                                    Pegawai</a>
+                            </li>
+                        </div>
+
+                        <div id="menuDev" class="d-none">
+                            <hr />
+                            <li class="nav-item">
+                                <a class="nav-link" href="../role/list.html">🛡️
+                                    Manajemen Role</a>
+                            </li>
+                        </div>
+                    </ul>
+                </nav>
+
+                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mt-4">
+                    <div
+                        class="d-flex justify-content-between align-items-center mb-4">
+                        <h4><i class="bi bi-briefcase"></i> Daftar
+                            Jabatan</h4>
+                        <a href="create.html" class="btn btn-primary d-none" id="buttonTambah">
+                            <i class="bi bi-plus-lg"></i> Tambah Jabatan
+                        </a>
+                    </div>
+
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Nama Jabatan</th>
+                                            <th class="text-center">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="jabatanTableBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            </div>
+
+            <script>
+			const token = localStorage.getItem("jwt_token");
+			if (!token) window.location.href = "../auth/login.html";
+
+            async function apiFetch(url, options = {}) {
+                const defaultHeaders = {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                };
+
+                const response = await fetch(url, {
+                    ...options,
+                    headers: {
+                        ...defaultHeaders,
+                        ...options.headers
+                    }
+                });
+
+                // Jika token tidak valid / expired
+                if (response.status === 401) {
+                    alert("Sesi berakhir, silakan login kembali.");
+                    logout();
+                    return null;
+                }
+
+                return await response.json();
+            }
+
+            let role = '';
+
+			async function loadProfile() {
+				try {
+					const response = await fetch("../../me.php", {
+						headers: { Authorization: `Bearer ${token}` },
+					});
+					const result = await response.json();
+
+					if (result.status) {
+						const user = result.data;
+						role = user.role.toLowerCase();
+
+						document.getElementById("userNameDisplay").innerText =
+							user.nama || user.username;
+
+						// Logika Tampilkan Menu
+						if (
+							["supervisor", "admin", "superadmin", "developer"].includes(role)
+						)
+							document
+								.getElementById("menuSupervisor")
+								.classList.remove("d-none");
+
+						if (["admin", "superadmin", "developer"].includes(role))
+							document.getElementById("menuAdmin").classList.remove("d-none");
+
+						if (["superadmin", "developer"].includes(role))
+							document.getElementById("menuSuper").classList.remove("d-none");
+
+                        if (["developer"].includes(role)) 
+                            document.getElementById("menuDev").classList.remove("d-none");
+					} else {
+						// console.log(result);
+                        // console.error("API Error:", result.message);
+						logout();
+					}
+				} catch (error) {
+					console.error("Error:", error);
+					alert("Sesi berakhir, silakan login kembali.");
+					logout();
+				}
+			}
+
+            async function loadJabatan() {
+                try {
+                    const response = await fetch("../../api/jabatan/list.php", {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const result = await response.json();
+
+                    if (result.status) {
+                        const tbody = document.getElementById("jabatanTableBody");
+
+                        const canEdit = ["developer", "superadmin", "admin"].includes(role);
+                        const canDelete = ["developer", "superadmin"].includes(role);
+
+                        if(canEdit) {
+                            document.getElementById("buttonTambah").classList.remove("d-none");
+                        }
+
+                        tbody.innerHTML = "";
+                        
+                        result.data.forEach((j, index) => {
+                            tbody.innerHTML += `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${j.jabatan || '-' }</td>
+                                    <td class="text-center">
+                                        <a href="edit.html?id=${j.id_jabatan}" class="btn btn-warning btn-sm text-white">
+                                            <i class="bi bi-pencil-square">Edit</i>
+                                        </a>
+
+                                        ${canDelete ? ` 
+                                        <button onclick="deleteJabatan(${j.id_jabatan})" class="btn btn-danger btn-sm">
+                                            <i class="bi bi-trash">Hapus</i>
+                                        </button> ` : ''}
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+
+            async function deleteJabatan(id) {
+                if (confirm("Apakah Anda yakin ingin menghapus jabatan ini?")) {
+                    const response = await fetch("../../api/jabatan/delete.php", {
+                        method: 'POST',
+                        headers: { 
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json' 
+                        },
+                        body: JSON.stringify({ id_jabatan: id })
+                    });
+                    const res = await response.json();
+                    alert(res.message);
+                    if (res.status) loadJabatan();
+                }
+            }
+
+			async function logout() {
+				try {
+					const token = localStorage.getItem("jwt_token");
+					
+					// Panggil API logout di backend
+					await fetch("../../auth/process_logout.php", {
+						method: "POST",
+						headers: { 
+							"Authorization": `Bearer ${token}`,
+							"Content-Type": "application/json"
+						}
+					});
+				} catch (error) {
+					console.error("Gagal menghubungi server saat logout:", error);
+				} finally {
+					localStorage.clear();
+					window.location.href = "../../index.php";
+				}
+			}
+
+            loadJabatan();
+			loadProfile();
+		</script>
+        </body>
+    </html>
