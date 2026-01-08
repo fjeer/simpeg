@@ -278,6 +278,10 @@
         const urlParams = new URLSearchParams(window.location.search);
         const idPegawai = urlParams.get('id');
 
+        if (!idPegawai) 
+        alert("ID Pegawai tidak ditemukan");
+        window.location.href = "list.html";
+
         async function apiFetch(url, options = {}) {
             const defaultHeaders = {
                 'Content-Type': 'application/json',

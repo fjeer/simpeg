@@ -252,6 +252,14 @@
                     return null;
                 }
 
+                if (response.status === 403) {
+                    const errorData = await response.json();
+                    alert(errorData.message || "Anda tidak memiliki akses ke data ini.");
+                    
+                    window.location.replace("../dashboard/index.html");
+                    return null;
+                }
+
                 return await response.json();
             }
 
@@ -260,7 +268,7 @@
                 prov: document.getElementById('provinsi'),
                 kab: document.getElementById('kabupaten'),
                 kec: document.getElementById('kecamatan'),
-                des: document.getElementById('desa')
+                des: document.getElementById('id_desa')
             };
 
             // --- 1. Load Provinsi ---
@@ -331,6 +339,7 @@
 
             async function loadJabatan() {
                 const res = await apiFetch('../../api/jabatan/list.php');
+                
                 if(res.status) {
                     document.getElementById('id_jabatan').innerHTML += res.data.map(j => 
                         `<option value="${j.id_jabatan}">${j.jabatan}</option>`
@@ -340,6 +349,7 @@
 
             async function loadRole() {
                 const res = await apiFetch('../../api/role/list.php');
+    
                 if(res.status) {
                     document.getElementById('id_role').innerHTML += res.data.map(r => 
                         `<option value="${r.id_role}">${r.nama_role}</option>`
