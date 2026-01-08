@@ -121,6 +121,11 @@
 
 		<script>
 			const token = localStorage.getItem("jwt_token");
+			const role = localStorage.getItem("user_role");
+			console.log({
+				token: token,
+				role: role
+			});
 			if (!token) window.location.href = "../auth/login.html";
 
 			async function apiFetch(url, options = {}) {
@@ -156,7 +161,6 @@
 
 					if (result.status) {
 						const user = result.data;
-						const role = user.role.toLowerCase();
 
 						document.getElementById("userNameDisplay").innerText =
 							user.nama || user.username;
@@ -169,7 +173,7 @@
 						document.getElementById("userJabatanDisplay").innerText =
 							user.jabatan || "-";
 						document.getElementById("roleBadge").innerText =
-							role.toUpperCase();
+							user.role.toUpperCase();
 
 						// Logika Tampilkan Menu
 						if (

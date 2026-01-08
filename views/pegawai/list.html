@@ -128,6 +128,11 @@
 
         <script>
 			const token = localStorage.getItem("jwt_token");
+            const role = localStorage.getItem("user_role");
+			console.log({
+				token: token,
+				role: role
+			});
 			if (!token) window.location.href = "../auth/login.html";
 
             async function apiFetch(url, options = {}) {
@@ -154,8 +159,6 @@
                 return await response.json();
             }
 
-            let role = "";
-
 			async function loadProfile() {
 				try {
 					const response = await fetch("../../me.php", {
@@ -165,7 +168,7 @@
 
 					if (result.status) {
 						const user = result.data;
-						role = user.role.toLowerCase();
+						// role = user.role.toLowerCase();
 
 						document.getElementById("userNameDisplay").innerText =
 							user.nama || user.username;
@@ -208,13 +211,6 @@
                     if (result.status) {
                         const tbody = document.getElementById("pegawaiTableBody");
 
-                        const canEdit = ["developer", "superadmin", "admin"].includes(role);
-                        const canDelete = ["developer", "superadmin"].includes(role);
-
-                        if(canEdit) {
-                            document.getElementById("buttonTambah").classList.remove("d-none");
-                        }
-
                         tbody.innerHTML = "";
                         
                         result.data.forEach((p, index) => {
@@ -234,20 +230,25 @@
                                         <a href="detail.html?id=${p.id_person}" class="btn btn-info btn-sm text-white">
                                             <i class="bi bi-pencil">Detail</i>
                                         </a>
-
-                                        ${canEdit ? `
-                                        <a href="edit.html?id=${p.id_person}" class="btn btn-warning btn-sm text-white">
+                                        <a href="edit.html?id=${p.id_person}" class="btn btn-warning btn-sm text-white d-none" id="btnEdit">
                                             <i class="bi bi-pencil">Edit</i>
-                                        </a> ` : ''}
-
-                                        ${canDelete ? ` 
-                                        <button onclick="deletePegawai(${p.id_person})" class="btn btn-danger btn-sm">
+                                        </a>
+                                        <button onclick="deletePegawai(${p.id_person})" class="btn btn-danger btn-sm d-none" id="btnHapus">
                                             <i class="bi bi-trash">Hapus</i>
-                                        </button> ` : ''}
+                                        </button>
                                     </td>
                                 </tr>
                             `;
                         });
+
+                        if(["developer", "superadmin", "admin"].includes(role)) {
+                            document.getElementById("buttonTambah").classList.remove("d-none");
+                            document.getElementById("btnEdit").classList.remove("d-none");
+                        }
+
+                        if(["superadmin", "admin"].includes(role)) {
+                            document.getElementById("btnHapus").classList.remove("d-none");
+                        }
                     }
                 } catch (err) {
                     console.error(err);

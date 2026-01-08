@@ -14,7 +14,7 @@ $auth = new AuthMiddleware($jwtService);
 // Pastikan semua role diizinkan memanggil profile sendiri
 $userData = $auth->authenticate(['admin', 'developer', 'superadmin', 'supervisor', 'user']);
 // AMBIL DETAIL LENGKAP TERMASUK ROLE
-$stmt = $db->prepare("SELECT p.*, u.username, r.nama_role as role, j.jabatan, ds.desa, kc.kecamatan, kb.kabupaten, pv.provinsi
+$stmt = $db->prepare("SELECT p.*, u.username, r.nama_role as role, j.jabatan, ds.*, kc.*, kb.*, pv.*
                       FROM users u
                       JOIN roles r ON u.id_role = r.id_role
                       LEFT JOIN person p ON u.id_person = p.id_person 

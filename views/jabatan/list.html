@@ -122,6 +122,12 @@
 
             <script>
 			const token = localStorage.getItem("jwt_token");
+            const role = localStorage.getItem("user_role");
+			console.log({
+				token: token,
+				role: role
+			});
+
 			if (!token) window.location.href = "../auth/login.html";
 
             async function apiFetch(url, options = {}) {
@@ -148,8 +154,6 @@
                 return await response.json();
             }
 
-            let role = '';
-
 			async function loadProfile() {
 				try {
 					const response = await fetch("../../me.php", {
@@ -159,7 +163,6 @@
 
 					if (result.status) {
 						const user = result.data;
-						role = user.role.toLowerCase();
 
 						document.getElementById("userNameDisplay").innerText =
 							user.nama || user.username;
@@ -202,13 +205,6 @@
                     if (result.status) {
                         const tbody = document.getElementById("jabatanTableBody");
 
-                        const canEdit = ["developer", "superadmin", "admin"].includes(role);
-                        const canDelete = ["developer", "superadmin"].includes(role);
-
-                        if(canEdit) {
-                            document.getElementById("buttonTambah").classList.remove("d-none");
-                        }
-
                         tbody.innerHTML = "";
                         
                         result.data.forEach((j, index) => {
@@ -220,15 +216,21 @@
                                         <a href="edit.html?id=${j.id_jabatan}" class="btn btn-warning btn-sm text-white">
                                             <i class="bi bi-pencil-square">Edit</i>
                                         </a>
-
-                                        ${canDelete ? ` 
-                                        <button onclick="deleteJabatan(${j.id_jabatan})" class="btn btn-danger btn-sm">
+                                        <button onclick="deleteJabatan(${j.id_jabatan})" class="btn btn-danger btn-sm d-none" id="btnHapus>
                                             <i class="bi bi-trash">Hapus</i>
-                                        </button> ` : ''}
+                                        </button>
                                     </td>
                                 </tr>
                             `;
                         });
+
+                        if(["admin", "superadmin", "developer"].includes(role)) {
+                            document.getElementById("buttonTambah").classList.remove("d-none");
+                        }
+
+                        if(["developer", "superadmin"].includes(role)) {
+                            document.querySelectorAll("#jabatanTableBody button").forEach(btn => btn.classList.remove("d-none"));
+                        }
                     }
                 } catch (err) {
                     console.error(err);

@@ -241,87 +241,88 @@
         </div>
 
         <script>
-        const token = localStorage.getItem('jwt_token');
+        const token = localStorage.getItem("jwt_token");
+        const role = localStorage.getItem("user_role");
+        console.log({
+            token: token,
+            role: role
+        });
         if (!token) window.location.href = '../auth/login.html';
 
-        async function apiFetch(endpoint) {
-            const resp = await fetch(endpoint, { headers: { 'Authorization': `Bearer ${token}` } });
-            return await resp.json();
+        async function apiFetch(url, options = {}) {
+            const defaultHeaders = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            };
+            const response = await fetch(url, {
+                ...options,
+                headers: { ...defaultHeaders, ...options.headers }
+            });
+            if (response.status === 401) logout();
+            return await response.json();
         }
 
-        // --- Logika Wilayah ---
-        const dropdowns = {
+                // Elements
+        const el = {
             prov: document.getElementById('provinsi'),
             kab: document.getElementById('kabupaten'),
             kec: document.getElementById('kecamatan'),
             des: document.getElementById('desa')
         };
 
-        // --- 1. Load Provinsi ---
-        async function loadProvinsi() {
-            const res = await apiFetch('../../api/wilayah/provinsi.php');
-            if(res.status) {
-                // Gunakan mapping untuk efisiensi
-                const options = res.data.map(p => `<option value="${p.id_provinsi}">${p.provinsi}</option>`).join('');
-                dropdowns.prov.innerHTML = '<option value="">Pilih Provinsi</option>' + options;
-            }
+                async function loadProvinsi() {
+            const res = await apiFetch("../../api/wilayah/provinsi.php");
+            if (!res.status) return;
+
+            const prov = document.getElementById("provinsi");
+            prov.innerHTML = '<option value="">Pilih</option>';
+
+            res.data.forEach(p => {
+                prov.innerHTML += `<option value="${p.id_provinsi}">${p.provinsi}</option>`;
+            });
         }
 
-        // --- 2. Prov -> Kab ---
-        dropdowns.prov.addEventListener('change', async () => {
-            // Reset semua anak di bawahnya
-            dropdowns.kab.innerHTML = '<option value="">Pilih Kabupaten</option>';
-            dropdowns.kec.innerHTML = '<option value="">Pilih Kecamatan</option>';
-            dropdowns.des.innerHTML = '<option value="">Pilih Desa</option>';
-            dropdowns.kab.disabled = dropdowns.kec.disabled = dropdowns.des.disabled = true;
+        async function loadKabupaten(idProv, selected = "") {
+            const res = await apiFetch(`../../api/wilayah/kabupaten.php?id_provinsi=${idProv}`);
+            const kab = document.getElementById("kabupaten");
 
-            if (!dropdowns.prov.value) return;
+            kab.disabled = false;
+            kab.innerHTML = '<option value="">Pilih</option>';
 
-            dropdowns.kab.innerHTML = '<option value="">Memuat...</option>';
-            dropdowns.kab.disabled = false;
-            
-            const res = await apiFetch(`../../api/wilayah/kabupaten.php?id_provinsi=${dropdowns.prov.value}`);
-            dropdowns.kab.innerHTML = '<option value="">Pilih Kabupaten</option>';
-            if(res.status) {
-                res.data.forEach(k => dropdowns.kab.innerHTML += `<option value="${k.id_kabupaten}">${k.kabupaten}</option>`);
-            }
-        });
+            res.data.forEach(d => {
+                kab.innerHTML += `<option value="${d.id_kabupaten}">${d.kabupaten}</option>`;
+            });
 
-        // --- 3. Kab -> Kec ---
-        dropdowns.kab.addEventListener('change', async () => {
-            // Reset kecamatan dan desa
-            dropdowns.kec.innerHTML = '<option value="">Pilih Kecamatan</option>';
-            dropdowns.des.innerHTML = '<option value="">Pilih Desa</option>';
-            dropdowns.kec.disabled = dropdowns.des.disabled = true;
+            kab.value = selected;
+        }
 
-            if (!dropdowns.kab.value) return;
+        async function loadKecamatan(idKab, selected = "") {
+            const res = await apiFetch(`../../api/wilayah/kecamatan.php?id_kabupaten=${idKab}`);
+            const kec = document.getElementById("kecamatan");
 
-            dropdowns.kec.innerHTML = '<option value="">Memuat...</option>';
-            dropdowns.kec.disabled = false;
+            kec.disabled = false;
+            kec.innerHTML = '<option value="">Pilih</option>';
 
-            const res = await apiFetch(`../../api/wilayah/kecamatan.php?id_kabupaten=${dropdowns.kab.value}`);
-            dropdowns.kec.innerHTML = '<option value="">Pilih Kecamatan</option>';
-            if(res.status) {
-                res.data.forEach(kc => dropdowns.kec.innerHTML += `<option value="${kc.id_kecamatan}">${kc.kecamatan}</option>`);
-            }
-        });
+            res.data.forEach(d => {
+                kec.innerHTML += `<option value="${d.id_kecamatan}">${d.kecamatan}</option>`;
+            });
 
-        // --- 4. Kec -> Des ---
-        dropdowns.kec.addEventListener('change', async () => {
-            dropdowns.des.innerHTML = '<option value="">Pilih Desa</option>';
-            dropdowns.des.disabled = true;
+            kec.value = selected;
+        }
 
-            if (!dropdowns.kec.value) return;
+        async function loadDesa(idKec, selected = "") {
+            const res = await apiFetch(`../../api/wilayah/desa.php?id_kecamatan=${idKec}`);
+            const des = document.getElementById("desa");
 
-            dropdowns.des.innerHTML = '<option value="">Memuat...</option>';
-            dropdowns.des.disabled = false;
+            des.disabled = false;
+            des.innerHTML = '<option value="">Pilih</option>';
 
-            const res = await apiFetch(`../../api/wilayah/desa.php?id_kecamatan=${dropdowns.kec.value}`);
-            dropdowns.des.innerHTML = '<option value="">Pilih Desa</option>';
-            if(res.status) {
-                res.data.forEach(ds => dropdowns.des.innerHTML += `<option value="${ds.id_desa}">${ds.desa}</option>`);
-            }
-        });
+            res.data.forEach(d => {
+                des.innerHTML += `<option value="${d.id_desa}">${d.desa}</option>`;
+            });
+
+            des.value = selected;
+        }
 
         // --- Load Profile & RBAC ---
         async function loadProfile() {
@@ -342,14 +343,30 @@
                 document.getElementById('rw').value = u.rw || '';
                 document.getElementById('alamat').value = u.alamat || '';
 
+                document.getElementById("provinsi").value = u.id_provinsi;
+                await loadKabupaten(u.id_provinsi, u.id_kabupaten);
+                await loadKecamatan(u.id_kabupaten, u.id_kecamatan);
+                await loadDesa(u.id_kecamatan, u.id_desa);
+
                 // Role Logic (RBAC Menu)
-                const role = u.role.toLowerCase();
                 if (["supervisor", "admin", "superadmin", "developer"].includes(role)) document.getElementById("menuSupervisor").classList.remove("d-none");
                 if (["admin", "superadmin", "developer"].includes(role)) document.getElementById("menuAdmin").classList.remove("d-none");
                 if (["superadmin", "developer"].includes(role)) document.getElementById("menuSuper").classList.remove("d-none");
                 if (["developer"].includes(role)) document.getElementById("menuDev").classList.remove("d-none");
             }
         }
+
+        provinsi.onchange = () => {
+            loadKabupaten(provinsi.value);
+        };
+
+        kabupaten.onchange = () => {
+            loadKecamatan(kabupaten.value);
+        };
+
+        kecamatan.onchange = () => {
+            loadDesa(kecamatan.value);
+        };
 
         // --- Update Process ---
         document.getElementById('profileForm').addEventListener('submit', async (e) => {

@@ -181,38 +181,28 @@
                                     <div class="col-md-6">
                                         <label
                                             class="form-label fw-bold">Provinsi</label>
-                                        <select class="form-select"
-                                            id="provinsi" disabled><option
-                                                value>Pilih
-                                                Provinsi</option></select>
+                                        <input type="text" id="provinsi"
+                                            class="form-control" disabled>
                                     </div>
                                     <div class="col-md-6">
                                         <label
                                             class="form-label fw-bold">Kabupaten</label>
-                                        <select class="form-select"
-                                            id="kabupaten" disabled
-                                            disabled><option
-                                                value>Pilih
-                                                Kabupaten</option></select>
+                                        <input type="text" id="kabupaten"
+                                            class="form-control" disabled>
                                     </div>
                                 </div>
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label
                                             class="form-label fw-bold">Kecamatan</label>
-                                        <select class="form-select"
-                                            id="kecamatan" disabled
-                                            disabled><option
-                                                value>Pilih
-                                                Kecamatan</option></select>
+                                        <input type="text" id="kecamatan"
+                                            class="form-control" disabled>
                                     </div>
                                     <div class="col-md-6">
                                         <label
                                             class="form-label fw-bold">Desa</label>
-                                        <select class="form-select" id="desa"
-                                            disabled
-                                            disabled><option value>Pilih
-                                                Desa</option></select>
+                                        <input type="text" id="desa"
+                                            class="form-control" disabled>
                                     </div>
                                 </div>
                                 <div class="row mb-3">
@@ -242,7 +232,12 @@
         </div>
 
         <script>
-        	const token = localStorage.getItem("jwt_token");
+			const token = localStorage.getItem("jwt_token");
+            const role = localStorage.getItem("user_role");
+			console.log({
+				token: token,
+				role: role
+			});
 			if (!token) window.location.href = "../auth/login.html";
 
             async function apiFetch(url, options = {}) {
@@ -284,16 +279,15 @@
                 document.getElementById('npwp').value = u.npwp || '';
                 document.getElementById('email').value = u.email || '';
                 document.getElementById('nomor_hp').value = u.nomor_hp || '';
+                document.getElementById('provinsi').value = u.provinsi || '-';
+                document.getElementById('kabupaten').value = u.kabupaten || '-';
+                document.getElementById('kecamatan').value = u.kecamatan || '-';
+                document.getElementById('desa').value = u.desa || '-';
                 document.getElementById('rt').value = u.rt || '';
                 document.getElementById('rw').value = u.rw || '';
                 document.getElementById('alamat').value = u.alamat || '';
 
-                if(u.id_desa) {
-                    
-                }
-
                 // Role Logic (RBAC Menu)
-                const role = u.role.toLowerCase();
                 if (["supervisor", "admin", "superadmin", "developer"].includes(role)) document.getElementById("menuSupervisor").classList.remove("d-none");
                 if (["admin", "superadmin", "developer"].includes(role)) document.getElementById("menuAdmin").classList.remove("d-none");
                 if (["superadmin", "developer"].includes(role)) document.getElementById("menuSuper").classList.remove("d-none");
